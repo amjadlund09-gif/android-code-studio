@@ -1,0 +1,4 @@
+<resources>
+    <!-- Window background before the first Compose frame (light). Dark version: values-night. -->
+    <style name="Theme.AppTheme" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>

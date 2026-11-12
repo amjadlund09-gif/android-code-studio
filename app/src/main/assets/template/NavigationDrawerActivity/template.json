@@ -1,0 +1,8 @@
+{
+  "needs": {
+    "platform": true,
+    "buildTools": true,
+    "jdk": 17,
+    "ndk": false
+  }
+}

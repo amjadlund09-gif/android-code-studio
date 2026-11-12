@@ -1,0 +1,9 @@
+{
+  "needs": {
+    "platform": false,
+    "buildTools": false,
+    "jdk": 0,
+    "ndk": false
+  },
+  "note": "The Flutter SDK is not installed by this app. Install it separately in the terminal."
+}

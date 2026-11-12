@@ -1,0 +1,11 @@
+{
+  "needs": {
+    "platform": true,
+    "buildTools": true,
+    "jdk": 17,
+    "ndk": true,
+    "cmake": "4.1.2"
+  },
+  "minSdk": 30,
+  "note": "Native game: uses AImageDecoder, so Android 11 (API 30) or newer."
+}

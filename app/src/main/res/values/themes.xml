@@ -1,0 +1,32 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <style name="Base.AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+  </style>
+
+  <style name="AppTheme" parent="Base.AppTheme" />
+  <!-- First-run "SDK Installation" screen: dark Material 3, warm beige accent (matches the reference UI). -->
+  <style name="Theme.Setup" parent="Theme.Material3.Dark.NoActionBar">
+    <item name="colorPrimary">#E6C2AD</item>
+    <item name="colorOnPrimary">#3E2D23</item>
+    <item name="colorPrimaryContainer">#5A4234</item>
+    <item name="colorOnPrimaryContainer">#FFDBC9</item>
+    <item name="colorSurface">#1F1B18</item>
+    <item name="colorOnSurface">#EBE0DB</item>
+    <item name="colorOnSurfaceVariant">#D7C2B9</item>
+    <item name="colorOutline">#A08D85</item>
+    <item name="colorError">#FFB4AB</item>
+    <item name="android:colorBackground">#1F1B18</item>
+    <item name="android:windowBackground">#1F1B18</item>
+    <item name="android:statusBarColor">@android:color/transparent</item>
+    <item name="android:navigationBarColor">#1F1B18</item>
+    <item name="android:textColorLink">#E6C2AD</item>
+  </style>
+
+  <!-- Terminal screen: Termux-like dark. -->
+  <style name="Theme.Terminal" parent="Theme.Material3.Dark.NoActionBar">
+    <item name="android:windowBackground">#141418</item>
+    <item name="android:colorBackground">#141418</item>
+    <item name="android:statusBarColor">#141418</item>
+    <item name="android:navigationBarColor">#141418</item>
+    <item name="android:windowLightStatusBar">false</item>
+  </style>
+</resources>

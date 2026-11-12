@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="sdk_title">#54569B</color>
+    <color name="sdk_section">#5B5E9C</color>
+    <color name="sdk_primary">#4F4E92</color>
+    <color name="sdk_gray_text">#6B6A78</color>
+    <color name="sdk_chip_bg">#E6E6E6</color>
+    <color name="sdk_chip_bg_sel">#E0DFFC</color>
+    <color name="sdk_card">#F9F7FE</color>
+    <color name="sdk_row_selected">#EFEDFA</color>
+</resources>
