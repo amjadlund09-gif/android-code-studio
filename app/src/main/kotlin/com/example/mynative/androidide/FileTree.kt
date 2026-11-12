@@ -56,6 +56,9 @@ class FileTree(
     }
 
     init {
+        view.addView(buildHeader(), LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+            setMargins(dp(10), dp(14), dp(10), 0)
+        })
         view.addView(buildTabs(), LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
             setMargins(dp(10), dp(10), dp(10), dp(8))
         })
@@ -68,18 +71,53 @@ class FileTree(
 
     // ---- header ------------------------------------------------------------------------------
 
+    private fun premium(radiusDp: Int, from: Int = 0xFFFFFFFF.toInt(), to: Int = 0xFFEFEBFD.toInt()) =
+        GradientDrawable(GradientDrawable.Orientation.TL_BR, intArrayOf(from, to)).apply {
+            cornerRadius = dp(radiusDp).toFloat()
+            setStroke(dp(1), 0x225B4FC4)
+        }
+
+    /** Project card at the top of the drawer: gradient avatar with the first letter + name + path. */
+    private fun buildHeader(): View {
+        val row = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            background = premium(20)
+            elevation = dp(3).toFloat()
+            setPadding(dp(12), dp(10), dp(12), dp(10))
+        }
+        row.addView(TextView(ctx).apply {
+            text = root.name.take(1).uppercase().ifEmpty { "P" }
+            textSize = 20f; gravity = Gravity.CENTER
+            setTypeface(null, Typeface.BOLD); setTextColor(Color.WHITE)
+            background = GradientDrawable(GradientDrawable.Orientation.TL_BR, intArrayOf(0xFF7B6CF2.toInt(), 0xFF3B28CC.toInt()))
+                .apply { cornerRadius = dp(14).toFloat() }
+        }, LinearLayout.LayoutParams(dp(44), dp(44)))
+        val col = LinearLayout(ctx).apply { orientation = LinearLayout.VERTICAL }
+        col.addView(TextView(ctx).apply {
+            text = root.name; textSize = 17f; setTypeface(null, Typeface.BOLD)
+            setTextColor(0xFF1B1538.toInt()); setSingleLine(true); ellipsize = TextUtils.TruncateAt.END
+        })
+        col.addView(TextView(ctx).apply {
+            text = root.absolutePath; textSize = 11f; setTextColor(grey)
+            setSingleLine(true); ellipsize = TextUtils.TruncateAt.MIDDLE
+        })
+        row.addView(col, LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f).apply { marginStart = dp(12) })
+        return row
+    }
+
     private fun buildTabs(): View {
         val pill = LinearLayout(ctx).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            background = rounded(0xFFF3F0FA.toInt(), 22)
+            background = premium(22)
             setPadding(dp(6), dp(5), dp(6), dp(5))
         }
         fun icon(res: Int, selected: Boolean, onClick: (View) -> Unit) {
             pill.addView(ImageView(ctx).apply {
                 setImageResource(res)
                 setPadding(dp(5), dp(5), dp(5), dp(5))
-                background = if (selected) rounded(0xFFE2E0F2.toInt(), 14) else null
+                background = if (selected) premium(14, 0xFFE9E5FF.toInt(), 0xFFD9D3F7.toInt()) else null
                 setOnClickListener { onClick(it) }
             }, LinearLayout.LayoutParams(dp(44), dp(40)).apply { marginEnd = dp(4) })
         }
@@ -109,7 +147,7 @@ class FileTree(
     private fun buildSearch(): View {
         val box = LinearLayout(ctx).apply {
             gravity = Gravity.CENTER_VERTICAL
-            background = rounded(0xFFF0EDF9.toInt(), 22)
+            background = premium(22, 0xFFFFFFFF.toInt(), 0xFFF3F0FC.toInt())
             setPadding(dp(12), 0, dp(6), 0)
         }
         box.addView(ImageView(ctx).apply { setImageResource(R.drawable.ic_search) }, dp(22), dp(22))
@@ -212,7 +250,7 @@ class FileTree(
         }, LinearLayout.LayoutParams(dp(16), WRAP_CONTENT))
         row.addView(ImageView(ctx).apply { setImageResource(R.drawable.ic_folder) },
             LinearLayout.LayoutParams(dp(24), dp(24)).apply { marginStart = dp(4) })
-        row.addView(nameView(if (dir == root) dir.name else dir.name),
+        row.addView(nameView(dir.name, 0xFF1B1538.toInt()).also { it.typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL) },
             LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f).apply { marginStart = dp(8) })
         row.addView(small((dir.list()?.size ?: 0).toString()),
             LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply { marginStart = dp(6) })
@@ -233,11 +271,11 @@ class FileTree(
     private fun fileRow(f: File, depth: Int): View {
         val sel = f == currentFile()
         val row = baseRow(depth)
-        if (sel) row.background = rounded(0xFFE6E2F8.toInt(), 10)
+        if (sel) row.background = premium(12, 0xFFEDE9FF.toInt(), 0xFFDAD4F8.toInt())
         row.addView(View(ctx), LinearLayout.LayoutParams(dp(16), 1))
         row.addView(ImageView(ctx).apply { setImageResource(iconFor(f)) },
             LinearLayout.LayoutParams(dp(22), dp(22)).apply { marginStart = dp(4) })
-        row.addView(nameView(f.name, if (sel) primary else Color.BLACK),
+        row.addView(nameView(f.name, if (sel) primary else 0xFF1B1538.toInt()).also { if (sel) it.setTypeface(null, Typeface.BOLD) },
             LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f).apply { marginStart = dp(8) })
         badgeFor(f)?.let { b ->
             row.addView(TextView(ctx).apply {

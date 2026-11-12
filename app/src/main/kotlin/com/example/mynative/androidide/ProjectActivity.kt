@@ -118,6 +118,7 @@ class ProjectActivity : AppCompatActivity() {
     private var logcatRefreshPending = false
 
     private val primary = 0xFF5B4FC4.toInt()
+    private val card_purple_tile = 0xFFE3DFFB.toInt()
     private val dp get() = resources.displayMetrics.density
     private fun dp(v: Int) = (v * dp).toInt()
 
@@ -162,12 +163,19 @@ class ProjectActivity : AppCompatActivity() {
         setColor(color); cornerRadius = dp(radiusDp).toFloat()
     }
 
+    /** Premium surface: soft top-left -> bottom-right gradient with a hairline purple stroke. */
+    private fun premium(radiusDp: Int, from: Int = 0xFFFFFFFF.toInt(), to: Int = 0xFFEFEBFD.toInt()) =
+        GradientDrawable(GradientDrawable.Orientation.TL_BR, intArrayOf(from, to)).apply {
+            cornerRadius = dp(radiusDp).toFloat()
+            setStroke(dp(1), 0x225B4FC4)
+        }
+
     private fun chip(text: String, onClick: () -> Unit) = TextView(this).apply {
         this.text = text
         textSize = 18f
         gravity = Gravity.CENTER
-        setTextColor(Color.BLACK)
-        background = rounded(0x14000000, 14)
+        setTextColor(0xFF2B2250.toInt())
+        background = rounded(0x1A5B4FC4, 16)
         minimumWidth = dp(44); minimumHeight = dp(44)
         setPadding(dp(12), 0, dp(12), 0)
         setOnClickListener { onClick() }
@@ -205,12 +213,14 @@ class ProjectActivity : AppCompatActivity() {
         val bar = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            background = rounded(0xFFF3F0FA.toInt(), 22)
+            background = premium(24)
+            elevation = dp(4).toFloat()
             setPadding(dp(8), dp(6), dp(8), dp(6))
         }
         bar.addView(chip("☰") { drawer.openDrawer(GravityCompat.START) })
         fileLabel = TextView(this).apply {
-            textSize = 14f; setTextColor(0xFF444444.toInt()); maxLines = 1
+            textSize = 15f; setTextColor(0xFF2B2250.toInt()); maxLines = 1
+            setTypeface(null, Typeface.BOLD)
             setPadding(dp(12), 0, dp(8), 0)
         }
         bar.addView(fileLabel, LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f))
@@ -249,8 +259,8 @@ class ProjectActivity : AppCompatActivity() {
         val status = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            background = rounded(0xFFF3F0FA.toInt(), 24)
-            elevation = dp(3).toFloat()
+            background = premium(24)
+            elevation = dp(5).toFloat()
             setPadding(dp(16), dp(12), dp(16), dp(12))
             setOnClickListener {
                 panel.visibility = if (panel.visibility == View.VISIBLE) View.GONE else View.VISIBLE
@@ -418,22 +428,51 @@ class ProjectActivity : AppCompatActivity() {
         }
         val titleRow = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         titleRow.addView(TextView(this).apply {
-            text = root.name; textSize = 30f; setTypeface(null, Typeface.BOLD); setTextColor(Color.BLACK)
+            text = root.name; textSize = 32f; setTypeface(null, Typeface.BOLD); setTextColor(0xFF1B1538.toInt())
         })
         titleRow.addView(TextView(this).apply {
             text = if (isGradleProject()) "Gradle project" else "Project"
-            textSize = 14f; setTextColor(primary); setTypeface(null, Typeface.BOLD)
-            background = rounded(0xFFE8E4F5.toInt(), 8)
-            setPadding(dp(12), dp(4), dp(12), dp(4))
+            textSize = 13f; setTextColor(Color.WHITE); setTypeface(null, Typeface.BOLD)
+            background = GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, intArrayOf(0xFF7B6CF2.toInt(), 0xFF3B28CC.toInt()))
+                .apply { cornerRadius = dp(10).toFloat() }
+            setPadding(dp(12), dp(5), dp(12), dp(5))
         }, LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply { marginStart = dp(12) })
         box.addView(titleRow)
         box.addView(TextView(this).apply {
-            text = "📂  Browse Files"
-            textSize = 18f; setTextColor(Color.BLACK)
-            background = rounded(0xFFF3F0FA.toInt(), 16)
-            setPadding(dp(20), dp(20), dp(20), dp(20))
-            setOnClickListener { drawer.openDrawer(GravityCompat.START) }
-        }, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply { topMargin = dp(16) })
+            text = root.absolutePath
+            textSize = 12f; setTextColor(0xFF7A7690.toInt()); maxLines = 1
+            ellipsize = android.text.TextUtils.TruncateAt.MIDDLE
+        }, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply { topMargin = dp(4) })
+
+        // premium action card: icon tile + title + subtitle
+        fun actionCard(icon: String, title: String, sub: String, tile: Int, onClick: () -> Unit): View {
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                background = premium(20)
+                elevation = dp(3).toFloat()
+                setPadding(dp(16), dp(14), dp(16), dp(14))
+                setOnClickListener { onClick() }
+            }
+            row.addView(TextView(this).apply {
+                text = icon; textSize = 22f; gravity = Gravity.CENTER
+                background = rounded(tile, 14)
+            }, LinearLayout.LayoutParams(dp(48), dp(48)))
+            val col = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+            col.addView(TextView(this).apply {
+                text = title; textSize = 17f; setTypeface(null, Typeface.BOLD); setTextColor(0xFF1B1538.toInt())
+            })
+            col.addView(TextView(this).apply { text = sub; textSize = 12f; setTextColor(0xFF7A7690.toInt()) })
+            row.addView(col, LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f).apply { marginStart = dp(14) })
+            row.addView(TextView(this).apply { text = "›"; textSize = 26f; setTextColor(0xFFA29BD6.toInt()) })
+            return row
+        }
+        val cardLp = { LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply { topMargin = dp(12); setMargins(dp(2), dp(12), dp(2), dp(2)) } }
+        box.addView(actionCard("📂", "Browse Files", "Open the project tree", card_purple_tile) { drawer.openDrawer(GravityCompat.START) }, cardLp())
+        box.addView(actionCard("▶", "Build & Run", "Debug, release or bundle", 0xFFDDF5E7.toInt()) {
+            if (runner != null) runner?.stop() else showBuildMenu()
+        }, cardLp())
+        box.addView(actionCard("⟳", "Sync project", "Refresh Gradle & dependencies", 0xFFFDE9D4.toInt()) { sync() }, cardLp())
         return box
     }
 
@@ -2067,7 +2106,8 @@ class ProjectActivity : AppCompatActivity() {
             val cell = LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
-                background = if (active) rounded(0xFFE2E0F2.toInt(), 12) else null
+                background = if (active) premium(14, 0xFFFFFFFF.toInt(), 0xFFE4E0FA.toInt()) else null
+                if (active) elevation = dp(2).toFloat()
             }
             cell.addView(TextView(this).apply {
                 text = d.file.name + if (d.dirty) " •" else ""
